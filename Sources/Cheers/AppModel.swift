@@ -61,7 +61,7 @@ final class AppModel {
             }
         }
 
-        controller.formatter.prewarm()
+        controller.formatter.prewarm(vocabulary: dictionary.entries.map(\.term))
         Task { await loadModel() }
     }
 
@@ -82,7 +82,7 @@ final class AppModel {
     }
 
     func retryModelLoad() {
-        controller.formatter.prewarm()
+        controller.formatter.prewarm(vocabulary: dictionary.entries.map(\.term))
         Task { await loadModel() }
     }
 

@@ -43,13 +43,14 @@ enum HeadlessTranscription {
         Task {
             do {
                 let transcriber = Transcriber()
+                let formatter = TranscriptFormatter()
+                formatter.prewarm()
                 let started = Date()
                 try await transcriber.load { _ in }
                 let loaded = Date()
                 let samples = try AudioConverter().resampleAudioFile(URL(filePath: path))
                 let raw = try await transcriber.transcribe(samples)
                 let finished = Date()
-                let formatter = TranscriptFormatter()
                 let text = await formatter.format(raw, options: FormattingOptions())
                 let formatted = Date()
                 print("raw:   \(raw)")

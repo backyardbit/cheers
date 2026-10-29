@@ -53,9 +53,15 @@ final class TranscriptFormatter {
         SystemLanguageModel.default.isAvailable
     }
 
-    func prewarm() {
+    private var readySession: (instructions: String, session: LanguageModelSession)?
+
+    func prewarm(vocabulary: [String] = []) {
         guard Self.isCleanupAvailable else { return }
-        LanguageModelSession(instructions: Self.baseInstructions).prewarm()
+        let instructions = Self.instructions(vocabulary: vocabulary)
+        guard readySession?.instructions != instructions else { return }
+        let session = LanguageModelSession(instructions: instructions)
+        session.prewarm(promptPrefix: Prompt("Transcript: "))
+        readySession = (instructions, session)
     }
 
     func format(_ raw: String, options: FormattingOptions) async -> String {
@@ -73,13 +79,12 @@ final class TranscriptFormatter {
 
     private func rewrite(_ text: String, vocabulary: [String]) async -> String {
         let wordCount = Self.wordCount(text)
-        guard Self.isCleanupAvailable, wordCount >= 3, wordCount <= Self.maximumRewriteWords else { return text }
+        guard Self.isCleanupAvailable, wordCount >= 3, wordCount <= Self.maximumRewriteWords,
+            DisfluencyDetector.needsCleanup(text)
+        else { return text }
 
-        var instructions = Self.baseInstructions
-        if !vocabulary.isEmpty {
-            instructions += "\nSpell these terms exactly as written: \(vocabulary.joined(separator: ", "))."
-        }
-        let session = LanguageModelSession(instructions: instructions)
+        let session = takeSession(vocabulary: vocabulary)
+        defer { prewarm(vocabulary: vocabulary) }
         do {
             let response = try await session.respond(
                 to: "Transcript: \(text)",
@@ -90,6 +95,20 @@ final class TranscriptFormatter {
         } catch {
             return text
         }
+    }
+
+    private func takeSession(vocabulary: [String]) -> LanguageModelSession {
+        let instructions = Self.instructions(vocabulary: vocabulary)
+        defer { readySession = nil }
+        if let readySession, readySession.instructions == instructions {
+            return readySession.session
+        }
+        return LanguageModelSession(instructions: instructions)
+    }
+
+    private static func instructions(vocabulary: [String]) -> String {
+        guard !vocabulary.isEmpty else { return baseInstructions }
+        return baseInstructions + "\nSpell these terms exactly as written: \(vocabulary.joined(separator: ", "))."
     }
 
     private static func accept(_ rewritten: String, original: String) -> String {
