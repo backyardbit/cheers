@@ -25,7 +25,11 @@ for bundle in "$BIN_PATH"/*.bundle; do
     cp -R "$bundle" "$APP/Contents/Resources/"
 done
 
-codesign --force --sign "${IDENTITY:--}" --identifier com.benkleyner.cheers "$APP"
+SIGN_ARGS=(--force --sign "${IDENTITY:--}" --identifier com.benkleyner.cheers)
+if [[ "$IDENTITY" == Developer\ ID\ Application* ]]; then
+    SIGN_ARGS+=(--options runtime --timestamp --entitlements Resources/Cheers.entitlements)
+fi
+codesign "${SIGN_ARGS[@]}" "$APP"
 echo "Built $APP (signed with ${IDENTITY:-ad-hoc identity})"
 
 if [[ "${1:-}" == "--install" ]]; then
