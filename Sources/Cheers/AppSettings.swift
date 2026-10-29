@@ -11,6 +11,10 @@ final class AppSettings {
         didSet { defaults.set(removeFillers, forKey: "removeFillers") }
     }
 
+    var smartCleanup: Bool {
+        didSet { defaults.set(smartCleanup, forKey: "smartCleanup") }
+    }
+
     var smartFormatting: Bool {
         didSet { defaults.set(smartFormatting, forKey: "smartFormatting") }
     }
@@ -58,6 +62,7 @@ final class AppSettings {
     init() {
         removeFillers = defaults.object(forKey: "removeFillers") as? Bool ?? true
         smartFormatting = defaults.object(forKey: "smartFormatting") as? Bool ?? true
+        smartCleanup = defaults.object(forKey: "smartCleanup") as? Bool ?? true
         preferredMicrophoneUID = defaults.string(forKey: "preferredMicrophoneUID")
         preferredMicrophoneName = defaults.string(forKey: "preferredMicrophoneName")
         alternateTrigger = (defaults.object(forKey: "alternateTriggerKeyCode") as? Int)

@@ -1,5 +1,4 @@
 import CheersCore
-import FluidAudio
 import Foundation
 import Observation
 
@@ -11,6 +10,7 @@ final class DictationController {
     @ObservationIgnored var modelStatus: () -> ModelStatus = { .loading }
     @ObservationIgnored private let recorder: AudioRecorder
     @ObservationIgnored private let inserter = TextInserter()
+    @ObservationIgnored let formatter = TranscriptFormatter()
     @ObservationIgnored private let transcriber: Transcriber
     @ObservationIgnored private let overlay: OverlayController
     @ObservationIgnored private let settings: AppSettings
@@ -111,7 +111,7 @@ final class DictationController {
         Task {
             do {
                 let raw = try await transcriber.transcribe(samples)
-                let text = postProcess(raw)
+                let text = await formatter.format(raw, options: formattingOptions)
                 guard !text.isEmpty else {
                     if current == session { overlay.hide() }
                     return
@@ -129,13 +129,13 @@ final class DictationController {
         }
     }
 
-    private func postProcess(_ raw: String) -> String {
-        let processor = TranscriptPostProcessor(dictionary: dictionary.entries, removeFillers: settings.removeFillers)
-        var text = processor.process(raw)
-        if settings.smartFormatting {
-            text = TextNormalizer.shared.normalizeSentence(text)
-        }
-        return text
+    private var formattingOptions: FormattingOptions {
+        FormattingOptions(
+            dictionary: dictionary.entries,
+            removeFillers: settings.removeFillers,
+            smartCleanup: settings.smartCleanup,
+            smartFormatting: settings.smartFormatting
+        )
     }
 
     private func reject(_ message: String, symbol: String) {

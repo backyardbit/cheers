@@ -82,6 +82,15 @@ private struct GeneralSettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                Toggle(isOn: $settings.smartCleanup) {
+                    Text("Clean up what I meant")
+                    Text(
+                        TranscriptFormatter.isCleanupAvailable
+                            ? "Drops false starts, repeats and self-corrections with Apple's on-device model."
+                            : "Turn on Apple Intelligence in System Settings to use this."
+                    )
+                }
+                .disabled(!TranscriptFormatter.isCleanupAvailable)
                 Toggle("Remove filler words", isOn: $settings.removeFillers)
                 Toggle("Smart formatting for numbers, dates and currency", isOn: $settings.smartFormatting)
             }

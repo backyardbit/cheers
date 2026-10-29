@@ -61,6 +61,7 @@ final class AppModel {
             }
         }
 
+        controller.formatter.prewarm()
         Task { await loadModel() }
     }
 
@@ -81,6 +82,7 @@ final class AppModel {
     }
 
     func retryModelLoad() {
+        controller.formatter.prewarm()
         Task { await loadModel() }
     }
 

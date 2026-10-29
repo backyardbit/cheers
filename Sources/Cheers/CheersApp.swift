@@ -1,5 +1,4 @@
 import AppKit
-import CheersCore
 import FluidAudio
 import SwiftUI
 
@@ -50,14 +49,17 @@ enum HeadlessTranscription {
                 let samples = try AudioConverter().resampleAudioFile(URL(filePath: path))
                 let raw = try await transcriber.transcribe(samples)
                 let finished = Date()
-                let text = TextNormalizer.shared.normalizeSentence(TranscriptPostProcessor().process(raw))
+                let formatter = TranscriptFormatter()
+                let text = await formatter.format(raw, options: FormattingOptions())
+                let formatted = Date()
                 print("raw:   \(raw)")
                 print("final: \(text)")
                 print(
                     String(
-                        format: "load %.2fs · transcribe %.0fms for %.1fs of audio",
+                        format: "load %.2fs · transcribe %.0fms · cleanup %.0fms for %.1fs of audio",
                         loaded.timeIntervalSince(started),
                         finished.timeIntervalSince(loaded) * 1000,
+                        formatted.timeIntervalSince(finished) * 1000,
                         Double(samples.count) / Double(Transcriber.sampleRate)
                     ))
                 exit(0)

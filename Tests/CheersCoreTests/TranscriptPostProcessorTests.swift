@@ -9,6 +9,19 @@ struct TranscriptPostProcessorTests {
         #expect(processor.process("It works. Uhm, mostly.") == "It works. Mostly.")
     }
 
+    @Test func collapsesRepeatedWords() {
+        let processor = TranscriptPostProcessor()
+        #expect(processor.process("So like like like it works.") == "So like it works.")
+        #expect(processor.process("Send the the report, it is is ready.") == "Send the report, it is ready.")
+        #expect(processor.process("I I, I think so.") == "I think so.")
+    }
+
+    @Test func keepsLegitimateDoubles() {
+        let processor = TranscriptPostProcessor()
+        #expect(processor.process("She had had enough.") == "She had had enough.")
+        #expect(processor.process("I know that that works.") == "I know that that works.")
+    }
+
     @Test func keepsWordsContainingFillerLetters() {
         let processor = TranscriptPostProcessor()
         #expect(processor.process("The umbrella is in the hummer.") == "The umbrella is in the hummer.")

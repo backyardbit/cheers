@@ -24,7 +24,7 @@ If a text field is focused, Cheers pastes into it (your clipboard is restored af
 
 - **Model:** [Parakeet Ultra 0.6B](https://github.com/FluidInference/FluidAudio/blob/main/Documentation/ASR/ParakeetUltra.md) through [FluidAudio](https://github.com/FluidInference/FluidAudio), compiled to Core ML with the encoder on the Neural Engine. It has the lowest English error rate in FluidAudio's lineup (2.13% / 3.81% WER on LibriSpeech clean/other) and transcribes a 7 second clip in about 100 ms on an M2 Pro.
 - **Dictionary:** words you add are boosted acoustically by Parakeet's 110M CTC keyword spotter, then a deterministic pass fixes casing and rewrites anything listed under "sounds like". That also works for expansions such as `my email → jane@example.com`.
-- **Cleanup:** filler words (um, uh) are removed, and NeMo inverse text normalization turns spoken numbers, dates and currency into written form.
+- **Cleanup:** filler sounds and stuttered repeats are removed. With Apple Intelligence on, Apple's on-device Foundation Models LLM then removes false starts, verbal tics and self-corrections ("at five, no, six" → "at six") without rephrasing; a guard falls back to the plain transcript if the rewrite drifts from what you said. NeMo inverse text normalization turns spoken numbers, dates and currency into written form.
 - **Overlay:** a Liquid Glass pill with five translucent ribbons driven by live loudness and a five-band spectrum. It shows a lock and stop button in hands-free mode, and a moving comet while transcribing.
 
 Models (~600 MB) download from Hugging Face on first launch and are cached in `~/Library/Application Support/FluidAudio`. Nothing else leaves your Mac.

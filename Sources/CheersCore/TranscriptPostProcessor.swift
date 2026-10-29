@@ -10,12 +10,30 @@ public struct TranscriptPostProcessor: Sendable {
     }
 
     public func process(_ text: String) -> String {
-        var result = text
-        if removeFillers {
-            result = Self.removingFillers(from: result)
-        }
-        result = Self.applying(dictionary: dictionary, to: result)
-        return Self.tidyingWhitespace(result)
+        finalize(clean(text))
+    }
+
+    public func clean(_ text: String) -> String {
+        guard removeFillers else { return Self.tidyingWhitespace(text) }
+        return Self.tidyingWhitespace(Self.collapsingRepeats(in: Self.removingFillers(from: text)))
+    }
+
+    public func finalize(_ text: String) -> String {
+        Self.tidyingWhitespace(Self.applying(dictionary: dictionary, to: text))
+    }
+
+    static let repeatPattern = try? NSRegularExpression(
+        pattern: #"(?<![\p{L}\p{N}'])(?!(?:had|that)(?![\p{L}\p{N}']))(\p{L}+)(?:[ \t]*,?[ \t]+\1(?![\p{L}\p{N}']))+"#,
+        options: [.caseInsensitive]
+    )
+
+    public static func collapsingRepeats(in text: String) -> String {
+        guard let repeatPattern else { return text }
+        return repeatPattern.stringByReplacingMatches(
+            in: text,
+            range: NSRange(text.startIndex..., in: text),
+            withTemplate: "$1"
+        )
     }
 
     static let fillerPattern = try? NSRegularExpression(
