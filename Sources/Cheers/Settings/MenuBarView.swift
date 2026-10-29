@@ -24,6 +24,8 @@ struct MenuBarView: View {
 
         Divider()
 
+        MicrophonePicker(model: model)
+
         Button("Copy Last Transcript") {
             model.controller.copyLastTranscript()
         }

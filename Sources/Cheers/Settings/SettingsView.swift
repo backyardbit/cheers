@@ -61,6 +61,13 @@ private struct GeneralSettingsView: View {
                 }
             }
 
+            Section("Microphone") {
+                MicrophonePicker(model: model)
+                Text(microphoneCaption)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+
             Section("Transcription") {
                 LabeledContent("Model") {
                     VStack(alignment: .trailing, spacing: 2) {
@@ -97,6 +104,14 @@ private struct GeneralSettingsView: View {
         }
         .formStyle(.grouped)
         .onDisappear { model.cancelTriggerCapture() }
+    }
+
+    private var microphoneCaption: String {
+        let active = model.microphones.activeName(preferredUID: model.settings.preferredMicrophoneUID) ?? "no microphone"
+        guard model.settings.preferredMicrophoneUID != nil else {
+            return "Using \(active). Follows whatever macOS has selected."
+        }
+        return "Using \(active). Falls back to the system default whenever the chosen microphone is disconnected."
     }
 
     private var modelStatusText: String {

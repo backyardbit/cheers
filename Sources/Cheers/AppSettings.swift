@@ -15,6 +15,14 @@ final class AppSettings {
         didSet { defaults.set(smartFormatting, forKey: "smartFormatting") }
     }
 
+    var preferredMicrophoneUID: String? {
+        didSet { defaults.set(preferredMicrophoneUID, forKey: "preferredMicrophoneUID") }
+    }
+
+    var preferredMicrophoneName: String? {
+        didSet { defaults.set(preferredMicrophoneName, forKey: "preferredMicrophoneName") }
+    }
+
     var alternateTrigger: TriggerKey? {
         didSet {
             defaults.set(alternateTrigger.map { Int($0.keyCode) }, forKey: "alternateTriggerKeyCode")
@@ -50,6 +58,8 @@ final class AppSettings {
     init() {
         removeFillers = defaults.object(forKey: "removeFillers") as? Bool ?? true
         smartFormatting = defaults.object(forKey: "smartFormatting") as? Bool ?? true
+        preferredMicrophoneUID = defaults.string(forKey: "preferredMicrophoneUID")
+        preferredMicrophoneName = defaults.string(forKey: "preferredMicrophoneName")
         alternateTrigger = (defaults.object(forKey: "alternateTriggerKeyCode") as? Int)
             .flatMap { TriggerKey(keyCode: UInt16($0)) }
         launchAtLogin = SMAppService.mainApp.status == .enabled

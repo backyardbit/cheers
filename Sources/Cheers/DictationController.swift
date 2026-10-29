@@ -79,7 +79,7 @@ final class DictationController {
 
         inserter.prepareFrontmostApp()
         do {
-            try recorder.start()
+            try recorder.start(deviceUID: settings.preferredMicrophoneUID)
         } catch {
             reject(error.localizedDescription, symbol: "mic.slash.fill")
             return

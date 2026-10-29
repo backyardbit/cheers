@@ -21,13 +21,23 @@ nonisolated final class AudioRecorder: @unchecked Sendable {
     private let samples = OSAllocatedUnfairLock(initialState: [Float]())
     private var engine: AVAudioEngine?
 
-    func start() throws {
+    func start(deviceUID: String?) throws {
         guard engine == nil else { return }
         samples.withLock { $0.removeAll(keepingCapacity: true) }
         meter.reset()
 
         let engine = AVAudioEngine()
         let input = engine.inputNode
+        if let deviceUID, var deviceID = AudioDevices.deviceID(forUID: deviceUID), let unit = input.audioUnit {
+            AudioUnitSetProperty(
+                unit,
+                kAudioOutputUnitProperty_CurrentDevice,
+                kAudioUnitScope_Global,
+                0,
+                &deviceID,
+                UInt32(MemoryLayout<AudioDeviceID>.size)
+            )
+        }
         let inputFormat = input.outputFormat(forBus: 0)
         guard inputFormat.sampleRate > 0, inputFormat.channelCount > 0,
               let monoFormat = AVAudioFormat(

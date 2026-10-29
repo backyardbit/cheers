@@ -18,6 +18,7 @@ final class AppModel {
     let settings = AppSettings()
     let permissions = Permissions()
     let dictionary = DictionaryStore()
+    let microphones = MicrophoneMonitor()
 
     @ObservationIgnored let controller: DictationController
     @ObservationIgnored private let transcriber = Transcriber()
