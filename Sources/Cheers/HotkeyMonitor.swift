@@ -3,6 +3,7 @@ import CheersCore
 
 final class HotkeyMonitor {
     var onInput: ((HotkeyInput) -> Void)?
+    var onCapture: ((TriggerKey?) -> Void)?
 
     var triggers: Set<TriggerKey> = [.function] {
         didSet { held.formIntersection(triggers) }
@@ -37,6 +38,10 @@ final class HotkeyMonitor {
     }
 
     private func handle(_ event: NSEvent) {
+        if let onCapture {
+            capture(event, completion: onCapture)
+            return
+        }
         switch event.type {
         case .flagsChanged:
             let flags = event.modifierFlags
@@ -59,6 +64,22 @@ final class HotkeyMonitor {
             }
         case .keyDown:
             onInput?(event.keyCode == Self.escapeKeyCode ? .escape : .otherKeyDown)
+        default:
+            break
+        }
+    }
+
+    private func capture(_ event: NSEvent, completion: (TriggerKey?) -> Void) {
+        switch event.type {
+        case .flagsChanged:
+            guard let key = TriggerKey(keyCode: event.keyCode),
+                  key.isDown(modifierFlags: event.modifierFlags.rawValue)
+            else { return }
+            onCapture = nil
+            completion(key)
+        case .keyDown where event.keyCode == Self.escapeKeyCode:
+            onCapture = nil
+            completion(nil)
         default:
             break
         }

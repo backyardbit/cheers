@@ -29,13 +29,22 @@ private struct GeneralSettingsView: View {
 
         Form {
             Section("Shortcuts") {
-                Picker("Also dictate with", selection: $settings.alternateTrigger) {
-                    Text("fn only").tag(TriggerKey?.none)
-                    ForEach(TriggerKey.allCases.filter { $0 != .function }, id: \.self) { key in
-                        Text(key.displayName).tag(Optional(key))
+                LabeledContent("Also dictate with") {
+                    HStack {
+                        if model.isCapturingTrigger {
+                            Text("Press a modifier key…")
+                                .foregroundStyle(.secondary)
+                            Button("Cancel") { model.cancelTriggerCapture() }
+                        } else {
+                            Text(settings.alternateTrigger?.displayName ?? "fn only")
+                            Button("Record…") { model.captureTrigger() }
+                            if settings.alternateTrigger != nil {
+                                Button("Clear") { settings.alternateTrigger = nil }
+                            }
+                        }
                     }
                 }
-                Text("For keyboards without an Apple fn key. Right ⌘ sits just right of the spacebar on most mechanical keyboards in Mac mode.")
+                Text("For keyboards without an Apple fn key. Click Record and press the key you want to hold, such as Control, Option or Command on either side.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                 LabeledContent("Push to talk", value: "Hold \(settings.triggerDescription)")
@@ -87,6 +96,7 @@ private struct GeneralSettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .onDisappear { model.cancelTriggerCapture() }
     }
 
     private var modelStatusText: String {

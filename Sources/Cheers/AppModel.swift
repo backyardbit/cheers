@@ -13,6 +13,7 @@ enum ModelStatus: Equatable {
 @Observable
 final class AppModel {
     private(set) var modelStatus: ModelStatus = .loading
+    private(set) var isCapturingTrigger = false
 
     let settings = AppSettings()
     let permissions = Permissions()
@@ -60,6 +61,22 @@ final class AppModel {
         }
 
         Task { await loadModel() }
+    }
+
+    func captureTrigger() {
+        isCapturingTrigger = true
+        hotkeys.onCapture = { [weak self] key in
+            guard let self else { return }
+            isCapturingTrigger = false
+            if let key, key != .function {
+                settings.alternateTrigger = key
+            }
+        }
+    }
+
+    func cancelTriggerCapture() {
+        hotkeys.onCapture = nil
+        isCapturingTrigger = false
     }
 
     func retryModelLoad() {

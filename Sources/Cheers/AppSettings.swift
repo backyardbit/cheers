@@ -17,7 +17,7 @@ final class AppSettings {
 
     var alternateTrigger: TriggerKey? {
         didSet {
-            defaults.set(alternateTrigger?.rawValue, forKey: "alternateTrigger")
+            defaults.set(alternateTrigger.map { Int($0.keyCode) }, forKey: "alternateTriggerKeyCode")
             onTriggersChanged?(triggers)
         }
     }
@@ -50,7 +50,8 @@ final class AppSettings {
     init() {
         removeFillers = defaults.object(forKey: "removeFillers") as? Bool ?? true
         smartFormatting = defaults.object(forKey: "smartFormatting") as? Bool ?? true
-        alternateTrigger = defaults.string(forKey: "alternateTrigger").flatMap(TriggerKey.init(rawValue:))
+        alternateTrigger = (defaults.object(forKey: "alternateTriggerKeyCode") as? Int)
+            .flatMap { TriggerKey(keyCode: UInt16($0)) }
         launchAtLogin = SMAppService.mainApp.status == .enabled
     }
 }

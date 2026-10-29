@@ -14,7 +14,7 @@ Download the latest `Cheers-x.y.z.dmg` from [Releases](https://github.com/backya
 | Hands-free | **Shift + fn** (or press shift while holding fn), then **fn** to finish |
 | Cancel | **Esc** |
 
-On keyboards without an Apple fn key (most mechanical keyboards keep Fn inside their firmware, where macOS never sees it), pick a second trigger in Settings › General › "Also dictate with": Right ⌘, Right ⌥ or Right ⌃. It behaves exactly like fn, including Shift for hands-free.
+On keyboards without an Apple fn key (most mechanical keyboards keep Fn inside their firmware, where macOS never sees it), click Record next to Settings › General › "Also dictate with" and press the modifier key you want to hold (Control, Option or Command on either side). It behaves exactly like fn, including Shift for hands-free.
 
 Set System Settings › Keyboard › "Press 🌐 key to" to **Do Nothing**, otherwise macOS opens the emoji picker on every press.
 
