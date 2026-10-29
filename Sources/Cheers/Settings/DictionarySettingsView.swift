@@ -11,10 +11,15 @@ struct DictionarySettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Names, jargon and spellings Cheers should always get right. Add what it mishears as “sounds like” to correct it, or to expand a phrase like “my email”.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+            Text(
+                """
+                Names, jargon and spellings Cheers should always get right. Add what it mishears as \
+                “sounds like” to correct it, or to expand a phrase like “my email”.
+                """
+            )
+            .font(.callout)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
 
             Table($store.entries, selection: $selection) {
                 TableColumn("Word") { $entry in

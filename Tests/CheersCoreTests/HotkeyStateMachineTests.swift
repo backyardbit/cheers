@@ -1,4 +1,5 @@
 import Testing
+
 @testable import CheersCore
 
 struct HotkeyStateMachineTests {

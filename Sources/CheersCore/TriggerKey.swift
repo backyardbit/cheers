@@ -2,44 +2,48 @@ import Foundation
 
 public struct TriggerKey: Codable, Hashable, Sendable {
     public let keyCode: UInt16
+    public let deviceFlag: UInt
+    public let displayName: String
 
-    public static let function = TriggerKey(uncheckedKeyCode: 63)
+    public static let function = Self(keyCode: 63, deviceFlag: 0x80_0000, displayName: "fn")
 
-    private static let modifiers: [UInt16: (flag: UInt, name: String)] = [
-        63: (0x80_0000, "fn"),
-        54: (0x10, "Right ⌘"),
-        55: (0x08, "Left ⌘"),
-        61: (0x40, "Right ⌥"),
-        58: (0x20, "Left ⌥"),
-        62: (0x2000, "Right ⌃"),
-        59: (0x01, "Left ⌃"),
-    ]
+    private static let supported: [UInt16: Self] = Dictionary(
+        uniqueKeysWithValues: [
+            function,
+            Self(keyCode: 54, deviceFlag: 0x10, displayName: "Right ⌘"),
+            Self(keyCode: 55, deviceFlag: 0x08, displayName: "Left ⌘"),
+            Self(keyCode: 61, deviceFlag: 0x40, displayName: "Right ⌥"),
+            Self(keyCode: 58, deviceFlag: 0x20, displayName: "Left ⌥"),
+            Self(keyCode: 62, deviceFlag: 0x2000, displayName: "Right ⌃"),
+            Self(keyCode: 59, deviceFlag: 0x01, displayName: "Left ⌃"),
+        ].map { ($0.keyCode, $0) }
+    )
 
-    public init?(keyCode: UInt16) {
-        guard Self.modifiers[keyCode] != nil else { return nil }
+    private init(keyCode: UInt16, deviceFlag: UInt, displayName: String) {
         self.keyCode = keyCode
+        self.deviceFlag = deviceFlag
+        self.displayName = displayName
     }
 
-    private init(uncheckedKeyCode: UInt16) {
-        keyCode = uncheckedKeyCode
+    public init?(keyCode: UInt16) {
+        guard let key = Self.supported[keyCode] else { return nil }
+        self = key
     }
 
     public init(from decoder: Decoder) throws {
         let code = try decoder.singleValueContainer().decode(UInt16.self)
-        guard Self.modifiers[code] != nil else {
-            throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Unsupported key code \(code)"))
+        guard let key = Self(keyCode: code) else {
+            throw DecodingError.dataCorrupted(
+                .init(codingPath: decoder.codingPath, debugDescription: "Unsupported key code \(code)")
+            )
         }
-        keyCode = code
+        self = key
     }
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(keyCode)
     }
-
-    public var deviceFlag: UInt { Self.modifiers[keyCode]!.flag }
-
-    public var displayName: String { Self.modifiers[keyCode]!.name }
 
     public func isDown(modifierFlags: UInt) -> Bool {
         modifierFlags & deviceFlag != 0

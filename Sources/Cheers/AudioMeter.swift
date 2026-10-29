@@ -14,7 +14,7 @@ nonisolated final class AudioMeter: @unchecked Sendable {
     private static let bandEdges = [3, 8, 16, 32, 64, 160]
 
     private let state = OSAllocatedUnfairLock(initialState: Snapshot())
-    private let fft = vDSP.FFT(log2n: 9, radix: .radix2, ofType: DSPSplitComplex.self)!
+    private let fft = vDSP.FFT(log2n: 9, radix: .radix2, ofType: DSPSplitComplex.self)
     private let hann = vDSP.window(
         ofType: Float.self,
         usingSequence: .hanningDenormalized,
@@ -57,6 +57,7 @@ nonisolated final class AudioMeter: @unchecked Sendable {
     }
 
     private func spectrumBands() -> [Float] {
+        guard let fft else { return Snapshot().bands }
         let half = Self.fftSize / 2
         let windowed = vDSP.multiply(history, hann)
         var real = [Float](repeating: 0, count: half)
@@ -65,9 +66,12 @@ nonisolated final class AudioMeter: @unchecked Sendable {
 
         real.withUnsafeMutableBufferPointer { realPointer in
             imaginary.withUnsafeMutableBufferPointer { imaginaryPointer in
-                var split = DSPSplitComplex(realp: realPointer.baseAddress!, imagp: imaginaryPointer.baseAddress!)
+                guard let realBase = realPointer.baseAddress, let imaginaryBase = imaginaryPointer.baseAddress else {
+                    return
+                }
+                var split = DSPSplitComplex(realp: realBase, imagp: imaginaryBase)
                 windowed.withUnsafeBufferPointer { samples in
-                    samples.baseAddress!.withMemoryRebound(to: DSPComplex.self, capacity: half) {
+                    samples.baseAddress?.withMemoryRebound(to: DSPComplex.self, capacity: half) {
                         vDSP_ctoz($0, 2, &split, 1, vDSP_Length(half))
                     }
                 }

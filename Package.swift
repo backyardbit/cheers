@@ -9,7 +9,7 @@ let package = Package(
             url: "https://github.com/FluidInference/FluidAudio.git",
             exact: "0.18.0",
             traits: ["NemoTextProcessing"]
-        ),
+        )
     ],
     targets: [
         .target(name: "CheersCore"),

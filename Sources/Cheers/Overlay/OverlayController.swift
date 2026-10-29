@@ -85,9 +85,10 @@ final class OverlayController {
         let mouse = NSEvent.mouseLocation
         let screen = NSScreen.screens.first { $0.frame.contains(mouse) } ?? NSScreen.main
         guard let frame = screen?.visibleFrame else { return }
-        panel.setFrameOrigin(CGPoint(
-            x: frame.midX - Self.panelSize.width / 2,
-            y: frame.minY + Self.bottomInset
-        ))
+        panel.setFrameOrigin(
+            CGPoint(
+                x: frame.midX - Self.panelSize.width / 2,
+                y: frame.minY + Self.bottomInset
+            ))
     }
 }

@@ -36,7 +36,7 @@ final class AppModel {
             dictionary: dictionary,
             permissions: permissions
         )
-        controller.modelStatus = { [unowned self] in modelStatus }
+        controller.modelStatus = { [weak self] in self?.modelStatus ?? .loading }
     }
 
     func launch() {

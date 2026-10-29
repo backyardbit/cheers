@@ -18,12 +18,13 @@ public struct TranscriptPostProcessor: Sendable {
         return Self.tidyingWhitespace(result)
     }
 
-    static let fillerPattern = try! NSRegularExpression(
+    static let fillerPattern = try? NSRegularExpression(
         pattern: #"(?<![\p{L}\p{N}'])(?:u+m+|u+h+m*|e+r+m+|h+m+)(?![\p{L}\p{N}'])[,.…]*\s*"#,
         options: [.caseInsensitive]
     )
 
     public static func removingFillers(from text: String) -> String {
+        guard let fillerPattern else { return text }
         var result = text
         let matches = fillerPattern.matches(in: text, range: NSRange(text.startIndex..., in: text))
         for match in matches.reversed() {
@@ -63,7 +64,8 @@ public struct TranscriptPostProcessor: Sendable {
     }
 
     static func phraseRegex(_ phrase: String) -> NSRegularExpression? {
-        let words = phrase
+        let words =
+            phrase
             .components(separatedBy: CharacterSet.whitespaces.union(CharacterSet(charactersIn: "-")))
             .filter { !$0.isEmpty }
             .map(NSRegularExpression.escapedPattern(for:))

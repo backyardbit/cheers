@@ -12,12 +12,6 @@ nonisolated final class AudioRecorder: @unchecked Sendable {
 
     let meter = AudioMeter()
 
-    private let targetFormat = AVAudioFormat(
-        commonFormat: .pcmFormatFloat32,
-        sampleRate: Double(Transcriber.sampleRate),
-        channels: 1,
-        interleaved: false
-    )!
     private let samples = OSAllocatedUnfairLock(initialState: [Float]())
     private var engine: AVAudioEngine?
 
@@ -40,17 +34,23 @@ nonisolated final class AudioRecorder: @unchecked Sendable {
         }
         let inputFormat = input.outputFormat(forBus: 0)
         guard inputFormat.sampleRate > 0, inputFormat.channelCount > 0,
-              let monoFormat = AVAudioFormat(
-                  commonFormat: .pcmFormatFloat32,
-                  sampleRate: inputFormat.sampleRate,
-                  channels: 1,
-                  interleaved: false
-              ),
-              let converter = AVAudioConverter(from: monoFormat, to: targetFormat)
+            let targetFormat = AVAudioFormat(
+                commonFormat: .pcmFormatFloat32,
+                sampleRate: Double(Transcriber.sampleRate),
+                channels: 1,
+                interleaved: false
+            ),
+            let monoFormat = AVAudioFormat(
+                commonFormat: .pcmFormatFloat32,
+                sampleRate: inputFormat.sampleRate,
+                channels: 1,
+                interleaved: false
+            ),
+            let converter = AVAudioConverter(from: monoFormat, to: targetFormat)
         else { throw RecorderError.noInputDevice }
 
         input.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { [weak self] buffer, _ in
-            self?.consume(buffer, monoFormat: monoFormat, converter: converter)
+            self?.consume(buffer, monoFormat: monoFormat, targetFormat: targetFormat, converter: converter)
         }
         engine.prepare()
         do {
@@ -75,10 +75,15 @@ nonisolated final class AudioRecorder: @unchecked Sendable {
         }
     }
 
-    private func consume(_ buffer: AVAudioPCMBuffer, monoFormat: AVAudioFormat, converter: AVAudioConverter) {
+    private func consume(
+        _ buffer: AVAudioPCMBuffer,
+        monoFormat: AVAudioFormat,
+        targetFormat: AVAudioFormat,
+        converter: AVAudioConverter
+    ) {
         guard let channels = buffer.floatChannelData, buffer.frameLength > 0,
-              let mono = AVAudioPCMBuffer(pcmFormat: monoFormat, frameCapacity: buffer.frameLength),
-              let destination = mono.floatChannelData?[0]
+            let mono = AVAudioPCMBuffer(pcmFormat: monoFormat, frameCapacity: buffer.frameLength),
+            let destination = mono.floatChannelData?[0]
         else { return }
 
         let frameCount = Int(buffer.frameLength)

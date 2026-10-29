@@ -1,0 +1,54 @@
+included:
+  - Sources
+  - Tests
+  - Package.swift
+
+disabled_rules:
+  - trailing_comma
+  - opening_brace
+
+opt_in_rules:
+  - closure_end_indentation
+  - collection_alignment
+  - contains_over_filter_count
+  - contains_over_first_not_nil
+  - discouraged_optional_boolean
+  - empty_collection_literal
+  - empty_count
+  - empty_string
+  - explicit_init
+  - fatal_error_message
+  - first_where
+  - flatmap_over_map_reduce
+  - force_unwrapping
+  - identical_operands
+  - implicitly_unwrapped_optional
+  - last_where
+  - legacy_multiple
+  - modifier_order
+  - prefer_self_in_static_references
+  - prefer_self_type_over_type_of_self
+  - prefer_zero_over_explicit_init
+  - redundant_nil_coalescing
+  - redundant_type_annotation
+  - sorted_first_last
+  - toggle_bool
+  - unneeded_parentheses_in_closure_argument
+  - unowned_variable_capture
+  - vertical_whitespace_closing_braces
+  - weak_delegate
+  - yoda_condition
+
+line_length:
+  warning: 120
+  error: 160
+  ignores_urls: true
+
+identifier_name:
+  excluded: [id, x, y, u, dt, i]
+
+type_body_length:
+  warning: 300
+
+file_length:
+  warning: 400

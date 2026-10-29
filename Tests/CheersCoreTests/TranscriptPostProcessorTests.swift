@@ -1,4 +1,5 @@
 import Testing
+
 @testable import CheersCore
 
 struct TranscriptPostProcessorTests {
@@ -24,7 +25,7 @@ struct TranscriptPostProcessorTests {
 
     @Test func dictionaryExpandsPhrases() {
         let processor = TranscriptPostProcessor(dictionary: [
-            DictionaryEntry(term: "jane@example.com", soundsLike: ["my email"]),
+            DictionaryEntry(term: "jane@example.com", soundsLike: ["my email"])
         ])
         #expect(processor.process("Send it to my email, please.") == "Send it to jane@example.com, please.")
     }

@@ -32,7 +32,9 @@ func render(size: Int) -> Data {
     let squircle = NSBezierPath(roundedRect: tile, xRadius: tile.width * 0.225, yRadius: tile.width * 0.225)
 
     cg.saveGState()
-    cg.setShadow(offset: CGSize(width: 0, height: -s * 0.012), blur: s * 0.03, color: NSColor.black.withAlphaComponent(0.35).cgColor)
+    cg.setShadow(
+        offset: CGSize(width: 0, height: -s * 0.012), blur: s * 0.03,
+        color: NSColor.black.withAlphaComponent(0.35).cgColor)
     NSColor.black.setFill()
     squircle.fill()
     cg.restoreGState()
@@ -83,7 +85,8 @@ func render(size: Int) -> Data {
             if pass == 0 {
                 cg.setShadow(offset: .zero, blur: s * 0.04, color: colors[index].cgColor)
             }
-            cg.drawLinearGradient(gradient, start: CGPoint(x: minX, y: midY), end: CGPoint(x: minX + width, y: midY), options: [])
+            cg.drawLinearGradient(
+                gradient, start: CGPoint(x: minX, y: midY), end: CGPoint(x: minX + width, y: midY), options: [])
             cg.restoreGState()
         }
     }

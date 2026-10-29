@@ -31,11 +31,21 @@ final class WaveEngine {
     }
 
     private static let strands: [Strand] = [
-        Strand(color: Color(red: 0.30, green: 0.84, blue: 1.00), frequency: 1.45, speed: 2.1, offset: 0.0, band: 0, weight: 0.9),
-        Strand(color: Color(red: 0.47, green: 0.40, blue: 1.00), frequency: 2.15, speed: -2.6, offset: 1.7, band: 1, weight: 0.96),
-        Strand(color: Color(red: 0.98, green: 0.34, blue: 0.82), frequency: 1.10, speed: 1.5, offset: 3.1, band: 2, weight: 1.0),
-        Strand(color: Color(red: 1.00, green: 0.60, blue: 0.36), frequency: 2.75, speed: -3.2, offset: 4.4, band: 3, weight: 0.9),
-        Strand(color: Color(red: 0.36, green: 1.00, blue: 0.76), frequency: 3.30, speed: 3.7, offset: 5.6, band: 4, weight: 0.8),
+        Strand(
+            color: Color(red: 0.30, green: 0.84, blue: 1.00), frequency: 1.45, speed: 2.1, offset: 0.0, band: 0,
+            weight: 0.9),
+        Strand(
+            color: Color(red: 0.47, green: 0.40, blue: 1.00), frequency: 2.15, speed: -2.6, offset: 1.7, band: 1,
+            weight: 0.96),
+        Strand(
+            color: Color(red: 0.98, green: 0.34, blue: 0.82), frequency: 1.10, speed: 1.5, offset: 3.1, band: 2,
+            weight: 1.0),
+        Strand(
+            color: Color(red: 1.00, green: 0.60, blue: 0.36), frequency: 2.75, speed: -3.2, offset: 4.4, band: 3,
+            weight: 0.9),
+        Strand(
+            color: Color(red: 0.36, green: 1.00, blue: 0.76), frequency: 3.30, speed: 3.7, offset: 5.6, band: 4,
+            weight: 0.8),
     ]
 
     private static let resolution = 72

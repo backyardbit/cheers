@@ -18,15 +18,21 @@ final class HotkeyMonitor {
     func start() {
         stop()
         let mask: NSEvent.EventTypeMask = [.flagsChanged, .keyDown]
-        if let global = NSEvent.addGlobalMonitorForEvents(matching: mask, handler: { [weak self] event in
-            self?.handle(event)
-        }) {
+        if let global = NSEvent.addGlobalMonitorForEvents(
+            matching: mask,
+            handler: { [weak self] event in
+                self?.handle(event)
+            })
+        {
             monitors.append(global)
         }
-        if let local = NSEvent.addLocalMonitorForEvents(matching: mask, handler: { [weak self] event in
-            self?.handle(event)
-            return event
-        }) {
+        if let local = NSEvent.addLocalMonitorForEvents(
+            matching: mask,
+            handler: { [weak self] event in
+                self?.handle(event)
+                return event
+            })
+        {
             monitors.append(local)
         }
     }
@@ -73,7 +79,7 @@ final class HotkeyMonitor {
         switch event.type {
         case .flagsChanged:
             guard let key = TriggerKey(keyCode: event.keyCode),
-                  key.isDown(modifierFlags: event.modifierFlags.rawValue)
+                key.isDown(modifierFlags: event.modifierFlags.rawValue)
             else { return }
             onCapture = nil
             completion(key)

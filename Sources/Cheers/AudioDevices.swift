@@ -19,8 +19,8 @@ nonisolated enum AudioDevices {
 
         return ids.compactMap { id in
             guard inputChannelCount(of: id) > 0,
-                  let uid = stringProperty(kAudioDevicePropertyDeviceUID, of: id),
-                  let name = stringProperty(kAudioObjectPropertyName, of: id)
+                let uid = stringProperty(kAudioDevicePropertyDeviceUID, of: id),
+                let name = stringProperty(kAudioObjectPropertyName, of: id)
             else { return nil }
             return AudioInputDevice(id: id, uid: uid, name: name)
         }

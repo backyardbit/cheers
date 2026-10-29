@@ -41,6 +41,13 @@ swift test                        # unit tests for the hotkey state machine and 
 
 Grant **Microphone** and **Accessibility** access on first launch.
 
+Formatting uses Apple's [swift-format](https://github.com/swiftlang/swift-format) (bundled with Xcode) and linting uses [SwiftLint](https://github.com/realm/SwiftLint) (`brew install swiftlint`). CI runs both in strict mode, plus the tests and a DMG build, on every push and pull request.
+
+```sh
+./scripts/lint.sh        # check
+./scripts/lint.sh --fix  # auto-format, then check
+```
+
 Ad-hoc signed builds lose the Accessibility grant on every rebuild. To keep it, create a stable local signing identity once; the build script picks it up automatically:
 
 ```sh

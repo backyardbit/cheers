@@ -44,9 +44,14 @@ private struct GeneralSettingsView: View {
                         }
                     }
                 }
-                Text("For keyboards without an Apple fn key. Click Record and press the key you want to hold, such as Control, Option or Command on either side.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
+                Text(
+                    """
+                    For keyboards without an Apple fn key. Click Record and press the key you want to hold, \
+                    such as Control, Option or Command on either side.
+                    """
+                )
+                .font(.callout)
+                .foregroundStyle(.secondary)
                 LabeledContent("Push to talk", value: "Hold \(settings.triggerDescription)")
                 LabeledContent("Hands-free", value: "Shift + \(settings.triggerDescription), press again to finish")
                 LabeledContent("Cancel", value: "Esc")
@@ -107,7 +112,8 @@ private struct GeneralSettingsView: View {
     }
 
     private var microphoneCaption: String {
-        let active = model.microphones.activeName(preferredUID: model.settings.preferredMicrophoneUID) ?? "no microphone"
+        let active =
+            model.microphones.activeName(preferredUID: model.settings.preferredMicrophoneUID) ?? "no microphone"
         guard model.settings.preferredMicrophoneUID != nil else {
             return "Using \(active). Follows whatever macOS has selected."
         }

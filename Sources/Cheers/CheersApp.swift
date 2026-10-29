@@ -53,12 +53,13 @@ enum HeadlessTranscription {
                 let text = TextNormalizer.shared.normalizeSentence(TranscriptPostProcessor().process(raw))
                 print("raw:   \(raw)")
                 print("final: \(text)")
-                print(String(
-                    format: "load %.2fs · transcribe %.0fms for %.1fs of audio",
-                    loaded.timeIntervalSince(started),
-                    finished.timeIntervalSince(loaded) * 1000,
-                    Double(samples.count) / Double(Transcriber.sampleRate)
-                ))
+                print(
+                    String(
+                        format: "load %.2fs · transcribe %.0fms for %.1fs of audio",
+                        loaded.timeIntervalSince(started),
+                        finished.timeIntervalSince(loaded) * 1000,
+                        Double(samples.count) / Double(Transcriber.sampleRate)
+                    ))
                 exit(0)
             } catch {
                 FileHandle.standardError.write(Data("error: \(error.localizedDescription)\n".utf8))

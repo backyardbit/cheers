@@ -15,7 +15,7 @@ final class TextInserter {
 
     func prepareFrontmostApp() {
         guard let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier,
-              !preparedProcesses.contains(pid)
+            !preparedProcesses.contains(pid)
         else { return }
         preparedProcesses.insert(pid)
         AXUIElementSetAttributeValue(
@@ -45,9 +45,9 @@ final class TextInserter {
         var value: CFTypeRef?
         let systemWide = AXUIElementCreateSystemWide()
         guard AXUIElementCopyAttributeValue(systemWide, kAXFocusedUIElementAttribute as CFString, &value) == .success,
-              let value, CFGetTypeID(value) == AXUIElementGetTypeID()
+            let value, CFGetTypeID(value) == AXUIElementGetTypeID()
         else { return nil }
-        let element = value as! AXUIElement
+        let element = unsafeDowncast(value, to: AXUIElement.self)
         return isEditable(element) ? element : nil
     }
 
@@ -56,10 +56,12 @@ final class TextInserter {
             return true
         }
         var settable = DarwinBoolean(false)
-        let valueSettable = AXUIElementIsAttributeSettable(element, kAXValueAttribute as CFString, &settable) == .success
+        let valueSettable =
+            AXUIElementIsAttributeSettable(element, kAXValueAttribute as CFString, &settable) == .success
             && settable.boolValue
         var range: CFTypeRef?
-        let hasSelection = AXUIElementCopyAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, &range) == .success
+        let hasSelection =
+            AXUIElementCopyAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, &range) == .success
         if valueSettable && hasSelection {
             return true
         }
@@ -72,21 +74,27 @@ final class TextInserter {
         guard let first = text.first, first.isLetter || first.isNumber else { return false }
 
         var rangeValue: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, &rangeValue) == .success,
-              let rangeValue, CFGetTypeID(rangeValue) == AXValueGetTypeID()
+        guard
+            AXUIElementCopyAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, &rangeValue) == .success,
+            let rangeValue, CFGetTypeID(rangeValue) == AXValueGetTypeID()
         else { return false }
         var selection = CFRange()
-        guard AXValueGetValue(rangeValue as! AXValue, .cfRange, &selection), selection.location > 0 else { return false }
+        guard AXValueGetValue(unsafeDowncast(rangeValue, to: AXValue.self), .cfRange, &selection),
+            selection.location > 0
+        else {
+            return false
+        }
 
         var previousRange = CFRange(location: selection.location - 1, length: 1)
         guard let query = AXValueCreate(.cfRange, &previousRange) else { return false }
         var result: CFTypeRef?
-        guard AXUIElementCopyParameterizedAttributeValue(
-            element,
-            kAXStringForRangeParameterizedAttribute as CFString,
-            query,
-            &result
-        ) == .success,
+        guard
+            AXUIElementCopyParameterizedAttributeValue(
+                element,
+                kAXStringForRangeParameterizedAttribute as CFString,
+                query,
+                &result
+            ) == .success,
             let previous = (result as? String)?.last
         else { return false }
         return !previous.isWhitespace && !"([{\"'“‘/-".contains(previous)
