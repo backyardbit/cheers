@@ -24,9 +24,9 @@ keyUsage = critical, digitalSignature
 extendedKeyUsage = critical, codeSigning
 EOF
 
-openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
+/usr/bin/openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
     -keyout "$WORK/key.pem" -out "$WORK/cert.pem" -config "$WORK/cert.conf"
-openssl pkcs12 -export -legacy -inkey "$WORK/key.pem" -in "$WORK/cert.pem" \
+/usr/bin/openssl pkcs12 -export -inkey "$WORK/key.pem" -in "$WORK/cert.pem" \
     -out "$WORK/identity.p12" -passout pass:cheers -name "$NAME"
 
 security import "$WORK/identity.p12" -k ~/Library/Keychains/login.keychain-db \
