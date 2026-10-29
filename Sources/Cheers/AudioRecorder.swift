@@ -14,6 +14,8 @@ nonisolated final class AudioRecorder: @unchecked Sendable {
 
     private let samples = OSAllocatedUnfairLock(initialState: [Float]())
     private var engine: AVAudioEngine?
+    private var converter: AVAudioConverter?
+    private var targetFormat: AVAudioFormat?
 
     func start(deviceUID: String?) throws {
         guard engine == nil else { return }
@@ -60,6 +62,13 @@ nonisolated final class AudioRecorder: @unchecked Sendable {
             throw error
         }
         self.engine = engine
+        self.converter = converter
+        self.targetFormat = targetFormat
+    }
+
+    func finish(tail: Duration) async -> [Float] {
+        try? await Task.sleep(for: tail)
+        return stop()
     }
 
     func stop() -> [Float] {
@@ -67,12 +76,31 @@ nonisolated final class AudioRecorder: @unchecked Sendable {
             engine.inputNode.removeTap(onBus: 0)
             engine.stop()
             self.engine = nil
+            flushConverter()
         }
         meter.reset()
         return samples.withLock { buffer in
             defer { buffer.removeAll() }
             return buffer
         }
+    }
+
+    private func flushConverter() {
+        defer {
+            converter = nil
+            targetFormat = nil
+        }
+        guard let converter, let targetFormat,
+            let output = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: 4096)
+        else { return }
+        var error: NSError?
+        converter.convert(to: output, error: &error) { _, status in
+            status.pointee = .endOfStream
+            return nil
+        }
+        guard error == nil, output.frameLength > 0, let data = output.floatChannelData?[0] else { return }
+        let remainder = Array(UnsafeBufferPointer(start: data, count: Int(output.frameLength)))
+        samples.withLock { $0.append(contentsOf: remainder) }
     }
 
     private func consume(

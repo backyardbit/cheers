@@ -18,6 +18,8 @@ final class DictationController {
     @ObservationIgnored private let permissions: Permissions
     @ObservationIgnored private var machine = HotkeyStateMachine()
     @ObservationIgnored private var session = 0
+    @ObservationIgnored private var isCapturingTail = false
+    @ObservationIgnored private let tail = Duration.milliseconds(400)
 
     init(
         recorder: AudioRecorder,
@@ -57,6 +59,10 @@ final class DictationController {
     }
 
     private func start(_ mode: DictationMode) {
+        guard !isCapturingTail else {
+            machine.reset()
+            return
+        }
         permissions.refresh()
         guard permissions.microphone == .authorized else {
             reject("Cheers needs microphone access", symbol: "mic.slash.fill")
@@ -103,12 +109,14 @@ final class DictationController {
 
     private func finish() {
         guard isRecording else { return }
-        let samples = recorder.stop()
         isRecording = false
+        isCapturingTail = true
         let current = session
         overlay.show(.transcribing)
 
         Task {
+            let samples = await recorder.finish(tail: tail)
+            isCapturingTail = false
             do {
                 let raw = try await transcriber.transcribe(samples)
                 let text = await formatter.format(raw, options: formattingOptions)
