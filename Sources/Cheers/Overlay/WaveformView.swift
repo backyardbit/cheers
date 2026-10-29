@@ -53,16 +53,16 @@ final class WaveEngine {
         clock += dt
 
         let targetLevel = isListening ? Double(snapshot.level) : 0
-        let levelTau = targetLevel > level ? 0.05 : 0.24
+        let levelTau = targetLevel > level ? 0.035 : 0.16
         level += (targetLevel - level) * smoothing(dt, levelTau)
 
         for index in bands.indices {
             let target = isListening ? Double(snapshot.bands[index]) : 0.4
-            bands[index] += (target - bands[index]) * smoothing(dt, 0.12)
+            bands[index] += (target - bands[index]) * smoothing(dt, 0.08)
         }
 
         activity += ((isListening ? 1 : 0) - activity) * smoothing(dt, 0.3)
-        flow += dt * (0.7 + level * 2.2)
+        flow += dt * (0.7 + level * 3.2)
     }
 
     func draw(in graphics: inout GraphicsContext, size: CGSize) {
@@ -92,9 +92,9 @@ final class WaveEngine {
 
     private func strandPath(_ strand: Strand, size: CGSize) -> Path {
         let midY = size.height / 2
-        let maxAmplitude = size.height * 0.47
+        let maxAmplitude = size.height * 0.5
 
-        let energy = pow(level, 0.85) * (0.62 + 0.7 * bands[strand.band]) * strand.weight
+        let energy = pow(level, 0.7) * (0.75 + 0.6 * bands[strand.band]) * strand.weight
         let resting = 0.035 + 0.012 * sin(clock * 1.6 + strand.offset)
         let listening = max(resting, min(energy, 1))
         let thinking = 0.05 + 0.035 * sin(clock * 3.4 + strand.offset * 1.3)

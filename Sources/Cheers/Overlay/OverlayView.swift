@@ -41,6 +41,14 @@ struct OverlayView: View {
                     .transition(.scale.combined(with: .opacity))
             }
 
+            if model.phase == .finished(.pasted) {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 26, height: 26)
+                    .transition(.blurReplace)
+            }
+
             if let status {
                 Label(status.text, systemImage: status.symbol)
                     .font(.system(size: 13, weight: .medium, design: .rounded))
@@ -84,8 +92,6 @@ struct OverlayView: View {
 
     private var status: (text: String, symbol: String)? {
         switch model.phase {
-        case .finished(.pasted):
-            ("Pasted", "checkmark.circle.fill")
         case .finished(.copied):
             ("Copied · ⌘V to paste", "doc.on.clipboard.fill")
         case .message(let text, let symbol):

@@ -119,7 +119,7 @@ final class DictationController {
                 lastTranscript = text
                 let outcome = await inserter.insert(text)
                 if current == session, !isRecording {
-                    overlay.flash(.finished(outcome))
+                    overlay.flash(.finished(outcome), for: outcome == .pasted ? .seconds(0.8) : .seconds(1.6))
                 }
             } catch {
                 if current == session, !isRecording {

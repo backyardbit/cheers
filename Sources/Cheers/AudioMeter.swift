@@ -22,6 +22,8 @@ nonisolated final class AudioMeter: @unchecked Sendable {
         isHalfWindow: false
     )
     private var history: [Float] = []
+    private var noiseFloor: Float = -60
+    private var peak: Float = -30
 
     func snapshot() -> Snapshot {
         state.withLock { $0 }
@@ -41,9 +43,17 @@ nonisolated final class AudioMeter: @unchecked Sendable {
 
         let rms = vDSP.rootMeanSquare(chunk)
         let decibels = 20 * log10(max(rms, 1e-7))
-        let level = min(max((decibels + 55) / 45, 0), 1)
+        let level = normalizedLevel(decibels)
         let bands = history.count == Self.fftSize ? spectrumBands() : Snapshot().bands
         state.withLock { $0 = Snapshot(level: level, bands: bands) }
+    }
+
+    private func normalizedLevel(_ decibels: Float) -> Float {
+        noiseFloor = decibels < noiseFloor ? max(decibels, -90) : min(noiseFloor + 0.02, decibels)
+        peak = decibels > peak ? decibels : peak - 0.08
+        let floor = noiseFloor + 4
+        let span = max(peak - floor, 14)
+        return min(max((decibels - floor) / span, 0), 1)
     }
 
     private func spectrumBands() -> [Float] {
