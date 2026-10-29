@@ -51,7 +51,7 @@ struct MenuBarView: View {
         case .failed(let message):
             "Model failed: \(message)"
         case .ready:
-            model.controller.isRecording ? "Listening…" : "Ready · hold fn to dictate"
+            model.controller.isRecording ? "Listening…" : "Ready · hold \(model.settings.triggerDescription) to dictate"
         }
     }
 }

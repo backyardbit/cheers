@@ -39,6 +39,8 @@ final class AppModel {
 
     func launch() {
         hotkeys.onInput = { [weak controller] input in controller?.handle(input) }
+        hotkeys.triggers = settings.triggers
+        settings.onTriggersChanged = { [weak hotkeys] triggers in hotkeys?.triggers = triggers }
         hotkeys.start()
 
         dictionary.onChange = { [weak self] entries in self?.scheduleVocabularyUpdate(entries) }

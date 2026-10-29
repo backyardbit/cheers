@@ -1,3 +1,4 @@
+import CheersCore
 import SwiftUI
 
 struct SettingsView: View {
@@ -28,8 +29,17 @@ private struct GeneralSettingsView: View {
 
         Form {
             Section("Shortcuts") {
-                LabeledContent("Push to talk", value: "Hold fn")
-                LabeledContent("Hands-free", value: "Shift + fn, then fn to finish")
+                Picker("Also dictate with", selection: $settings.alternateTrigger) {
+                    Text("fn only").tag(TriggerKey?.none)
+                    ForEach(TriggerKey.allCases.filter { $0 != .function }, id: \.self) { key in
+                        Text(key.displayName).tag(Optional(key))
+                    }
+                }
+                Text("For keyboards without an Apple fn key. Right ⌘ sits just right of the spacebar on most mechanical keyboards in Mac mode.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                LabeledContent("Push to talk", value: "Hold \(settings.triggerDescription)")
+                LabeledContent("Hands-free", value: "Shift + \(settings.triggerDescription), press again to finish")
                 LabeledContent("Cancel", value: "Esc")
                 HStack {
                     Text("Set “Press 🌐 key to” to “Do Nothing” so the emoji picker stays out of the way.")

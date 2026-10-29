@@ -14,6 +14,8 @@ Download the latest `Cheers-x.y.z.dmg` from [Releases](https://github.com/backya
 | Hands-free | **Shift + fn** (or press shift while holding fn), then **fn** to finish |
 | Cancel | **Esc** |
 
+On keyboards without an Apple fn key (most mechanical keyboards keep Fn inside their firmware, where macOS never sees it), pick a second trigger in Settings › General › "Also dictate with": Right ⌘, Right ⌥ or Right ⌃. It behaves exactly like fn, including Shift for hands-free.
+
 Set System Settings › Keyboard › "Press 🌐 key to" to **Do Nothing**, otherwise macOS opens the emoji picker on every press.
 
 If a text field is focused, Cheers pastes into it (your clipboard is restored afterwards). If nothing editable is focused, the transcript goes on the clipboard so you can paste it wherever you want. The menu bar item also keeps the last transcript.

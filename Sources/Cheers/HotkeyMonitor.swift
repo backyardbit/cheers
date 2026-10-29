@@ -4,12 +4,15 @@ import CheersCore
 final class HotkeyMonitor {
     var onInput: ((HotkeyInput) -> Void)?
 
-    private static let fnKeyCode: UInt16 = 63
+    var triggers: Set<TriggerKey> = [.function] {
+        didSet { held.formIntersection(triggers) }
+    }
+
     private static let escapeKeyCode: UInt16 = 53
     private static let shiftKeyCodes: Set<UInt16> = [56, 60]
 
     private var monitors: [Any] = []
-    private var fnIsDown = false
+    private var held: Set<TriggerKey> = []
 
     func start() {
         stop()
@@ -30,18 +33,27 @@ final class HotkeyMonitor {
     func stop() {
         monitors.forEach(NSEvent.removeMonitor)
         monitors.removeAll()
-        fnIsDown = false
+        held.removeAll()
     }
 
     private func handle(_ event: NSEvent) {
         switch event.type {
         case .flagsChanged:
             let flags = event.modifierFlags
-            if event.keyCode == Self.fnKeyCode {
-                let isDown = flags.contains(.function)
-                guard isDown != fnIsDown else { return }
-                fnIsDown = isDown
-                onInput?(isDown ? .fnDown(shiftHeld: flags.contains(.shift)) : .fnUp)
+            if let trigger = triggers.first(where: { $0.keyCode == event.keyCode }) {
+                let isDown = trigger.isDown(modifierFlags: flags.rawValue)
+                guard isDown != held.contains(trigger) else { return }
+                if isDown {
+                    held.insert(trigger)
+                    if held.count == 1 {
+                        onInput?(.triggerDown(shiftHeld: flags.contains(.shift)))
+                    }
+                } else {
+                    held.remove(trigger)
+                    if held.isEmpty {
+                        onInput?(.triggerUp)
+                    }
+                }
             } else if Self.shiftKeyCodes.contains(event.keyCode), flags.contains(.shift) {
                 onInput?(.shiftDown)
             }
